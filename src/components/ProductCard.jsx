@@ -5,9 +5,11 @@ import { BiSolidCart } from "react-icons/bi";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useCart } from "../context/CartContext";
 
 export default function ProductCard({ item }) {
   //   console.log(item);
+  const { refreshCart } = useCart();
 
   const handleAddCart = () => {
     const data = {
@@ -26,6 +28,7 @@ export default function ProductCard({ item }) {
             text: "Pruduct added to cart",
             timer: 700,
           });
+          refreshCart();
         } else if (res.data.status === false) {
           Swal.fire({
             icon: "warning",
