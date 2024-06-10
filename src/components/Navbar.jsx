@@ -7,9 +7,11 @@ import { FaSearch } from "react-icons/fa";
 import Search from "./Search";
 import { MdShoppingCart } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 const NavBar = () => {
   const [show, setShow] = useState(true);
+  const { productList } = useCart();
 
   useEffect(() => {
     function scrollWidth() {
@@ -31,7 +33,13 @@ const NavBar = () => {
     <nav className="py-8">
       <div className="max-w-container mx-auto p-2">
         <Flex className="lg:flex lg:items-center">
-          <div className="lg:w-3/12">hello</div>
+          <div className="lg:w-3/12">
+            <img
+              className="w-[30%] "
+              src="../../images/logo.avif"
+              alt="image"
+            />
+          </div>
           <div className="w-auto lg:w-[600px] relative">
             <Search
               className="w-full py-4 px-5 placeholder:text[#c4c4c4] font-dm text-sm"
@@ -70,9 +78,16 @@ const NavBar = () => {
               </List>
             )}
           </div>
-          <Link to={"/cart"}>
-            <MdShoppingCart className=" text-[30px] ms-8 " />
-          </Link>
+          <div className="relative ms-7">
+            <Link to="/cart">
+              <MdShoppingCart className="text-2xl" />
+            </Link>
+            {productList.length > 0 && (
+              <span className="w-[20px] h-[20px] bg-red-500 text-white absolute rounded-full flex items-center justify-center top-[-10px] right-[-10px]  ">
+                {productList.length}
+              </span>
+            )}
+          </div>
         </Flex>
       </div>
     </nav>

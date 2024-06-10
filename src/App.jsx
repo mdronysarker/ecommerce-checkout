@@ -8,6 +8,7 @@ import {
 import ProductListingPage from "./pages/ProductListingPage";
 import RootLayout from "./Layout/RootLayout";
 import Cart from "./pages/Cart";
+import Checkout from "./pages/CheckoutPage";
 
 export default function App() {
   const router = createBrowserRouter(
@@ -15,6 +16,7 @@ export default function App() {
       <Route path="/" element={<RootLayout />}>
         <Route path="/" element={<ProductListingPage />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Route>
     )
   );
