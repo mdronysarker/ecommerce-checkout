@@ -1,7 +1,83 @@
 import Flex from "../components/layout/Flex";
 import { ImCross } from "react-icons/im";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { BeatLoader } from "react-spinners";
+import { useCart } from "../context/CartContext";
 
 const Cart = () => {
+  const { productList, loading, setLoading, setProductList } = useCart();
+  console.log(productList);
+
+  const navigate = useNavigate();
+  const totalPrice = productList.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
+  const completeOrder = () => {
+    // setLoading(true);
+
+    if (setLoading) {
+      navigate("/checkout");
+      setLoading(false);
+    }
+  };
+
+  const changeQuantity = (type, index) => {
+    const updatedList = [...productList];
+
+    if (
+      type === "increase" &&
+      productList[index].quantity < productList[index].productQuantity
+    ) {
+      updatedList[index].quantity++;
+    } else if (type === "increase") {
+      Swal.fire({
+        icon: "error",
+        title: `Only ${productList[index].productQuantity} is available`,
+        text: "You cannot add more than that",
+        timer: 1000,
+      });
+      return;
+    }
+
+    if (type === "decrease" && productList[index].quantity > 1) {
+      updatedList[index].quantity--; // Decrement the quantity
+    } else if (type === "decrease") {
+      Swal.fire({
+        icon: "error",
+        title: "Zero items are not allowed",
+        text: "You cannot order zero items",
+        timer: 1000,
+      });
+      return;
+    }
+
+    setProductList(updatedList);
+  };
+
+  const deleteProduct = (productId) => {
+    axios
+      .post("http://localhost:5000/deleteCartItem", { productId })
+      .then((res) => {
+        if (res.data.status) {
+          Swal.fire({
+            icon: "success",
+            title: "Item Delete ",
+            text: "Your item is deleted from the cart",
+            timer: 1000,
+          });
+          let newArray = productList.filter((item) => item._id !== productId);
+          setProductList(newArray);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  // console.log(productList);
+
   return (
     <div className="max-w-container mx-auto p-2.5">
       <h2 className="mb-10 text-4xl font-bold font-dm">Cart</h2>
@@ -13,51 +89,78 @@ const Cart = () => {
           <div className="w-[23%]">Total</div>
         </Flex>
       </div>
-      <div className="py-[34px] px-5">
-        <Flex className="flex items-center justify-between">
-          <div className="w-[23%] relative">
-            <Flex className="flex items-center justify-between">
-              <ImCross className="cursor-pointer font-xl w-[100%]" />
-              <div className="w-[100%] mb-6">
-                <img src="" alt="hello" />
+      <div className="py-[34px] px-5 ">
+        {productList.map((product, index) => (
+          <Flex key={product._id} className="flex items-center justify-between">
+            <div className="w-[23%] flex justify-between  items-center ">
+              <ImCross
+                className="cursor-pointer font-xl w-[20%]"
+                onClick={() => {
+                  deleteProduct(product._id);
+                }}
+              />
+              <div className="w-[30%] mb-6">
+                <img src={product.image} alt="image" />
               </div>
-              <h3 className="font-dm font-bold text-sm text-primary w-[100%]">
-                product name
+              <h3 className="font-dm font-bold text-sm text-primary w-[20%]">
+                {product.productName}
               </h3>
+            </div>
+            <div className="w-[23%]">{product.price}</div>
+            <div className="w-[23%] ">
+              <span className=" font-dm text-[16px] border border-[#767676] py-[3px] px-[21px]">
+                <button
+                  onClick={() => {
+                    changeQuantity("decrease", index);
+                  }}
+                >
+                  -
+                </button>
+                <span className="mx-[10px]"> {product.quantity}</span>
+                <button
+                  onClick={() => {
+                    changeQuantity("increase", index);
+                  }}
+                >
+                  +
+                </button>
+              </span>
+            </div>
+            <div className="w-[23%] font-dm text-[#262626] font-bold text-2xl ">
+              {product.price * product.quantity}
+            </div>
+          </Flex>
+        ))}
+      </div>
+      {productList.length > 0 && (
+        <>
+          <div>
+            <h3 className="flex justify-end text-xl font-bold font-dm">
+              Cart Totals
+            </h3>
+          </div>
+          <div className="mt-8 ">
+            <Flex className="flex justify-end gap-x-8 ">
+              <h4>Total Price </h4>
+              <p>${totalPrice}</p>
             </Flex>
           </div>
-          <div className="w-[23%]">product.price</div>
-          <div className="w-[23%] ">
-            <span className=" font-dm text-[16px] border border-[#767676] py-[3px] px-[21px]">
-              <button>-</button>
-              <span className="mx-[10px]"> product.quantity</span>
-              <button>+</button>
-            </span>
+          <div className="flex justify-end mt-4">
+            {loading ? (
+              <button className="px-24 py-4 text-sm font-bold text-white bg-primary font-dm">
+                <BeatLoader color="#36d7b7" />
+              </button>
+            ) : (
+              <button
+                onClick={completeOrder}
+                className="px-24 py-4 text-sm font-bold text-white bg-primary font-dm"
+              >
+                Checkout
+              </button>
+            )}
           </div>
-          <div className="w-[23%] font-dm text-[#262626] font-bold text-2xl ">
-            product.price * product.quantity
-          </div>
-        </Flex>
-      </div>
-
-      <>
-        <div>
-          <h3 className="flex justify-end text-xl font-bold font-dm">
-            Cart Totals
-          </h3>
-        </div>
-        <div className="mt-8 ">
-          <Flex className="flex justify-end gap-x-8 ">
-            <h4>Total Price </h4>
-            <p>$ totalPrice</p>
-          </Flex>
-        </div>
-        <div className="flex justify-end mt-4">
-          <button className="px-24 py-4 text-sm font-bold text-white bg-primary font-dm">
-            Checkout
-          </button>
-        </div>
-      </>
+        </>
+      )}
     </div>
   );
 };
