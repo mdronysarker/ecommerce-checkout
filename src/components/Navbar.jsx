@@ -5,6 +5,7 @@ import { AiOutlineBars } from "react-icons/ai";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import Search from "./Search";
+import { MdShoppingCart } from "react-icons/md";
 
 const NavBar = () => {
   const [show, setShow] = useState(true);
@@ -68,6 +69,7 @@ const NavBar = () => {
               </List>
             )}
           </div>
+          <MdShoppingCart className=" text-[30px] ms-8 " />
         </Flex>
       </div>
     </nav>
